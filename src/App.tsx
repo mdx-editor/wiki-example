@@ -1,8 +1,9 @@
 import { $patchStyleText } from '@lexical/selection'
-import { activeEditor$, currentSelection$, diffSourcePlugin, DiffSourceToggleWrapper, headingsPlugin, linkDialogPlugin, linkPlugin, MDXEditor, toolbarPlugin, useCellValues } from '@mdxeditor/editor'
+import { activeEditor$, currentSelection$, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, headingsPlugin, linkDialogPlugin, linkPlugin, MDXEditor, toolbarPlugin, useCellValues } from '@mdxeditor/editor'
 import '@mdxeditor/editor/style.css'
 import { $getRoot, $isTextNode, ElementNode, LexicalNode } from 'lexical'
 import React from 'react'
+import { mdxEditorMentionsPlugin } from './mentions/mdxEditorMentionsPlugin'
 
 const markdownWithColors = `
   # Hello World
@@ -13,6 +14,10 @@ bar
   A paragraph with <span style="color: red">some red text <span style="color: blue">with some blue nesting.</span> in here.</span> in it.
 
 A [google](https://google.com) link.
+
+something more
+
+and :mention[petyo ivanov] here.
 `
 
 const ColorsToolbar = () => {
@@ -83,6 +88,8 @@ export default function App() {
         markdown={markdownWithColors}
         plugins={[
           linkPlugin(),
+          mdxEditorMentionsPlugin(),
+          directivesPlugin(),
           linkDialogPlugin({
             onClickLinkCallback(url) {
               console.log(`${url} clicked from the dialog`)
