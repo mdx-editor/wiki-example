@@ -4,6 +4,7 @@ import '@mdxeditor/editor/style.css'
 import { $getRoot, $isTextNode, ElementNode, LexicalNode } from 'lexical'
 import React from 'react'
 import { mdxEditorMentionsPlugin } from './mentions/mdxEditorMentionsPlugin'
+import { mdxEditorEmojiPickerPlugin } from './emoji/mdxEditorEmojiPickerPlugin'
 
 const markdownWithColors = `
   # Hello World
@@ -89,6 +90,7 @@ export default function App() {
         plugins={[
           linkPlugin(),
           mdxEditorMentionsPlugin(),
+          mdxEditorEmojiPickerPlugin(),
           directivesPlugin(),
           linkDialogPlugin({
             onClickLinkCallback(url) {
