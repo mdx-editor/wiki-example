@@ -1,25 +1,57 @@
 import { $patchStyleText } from '@lexical/selection'
-import { activeEditor$, currentSelection$, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, headingsPlugin, linkDialogPlugin, linkPlugin, MDXEditor, toolbarPlugin, useCellValues } from '@mdxeditor/editor'
+import { activeEditor$, Cell, createRootEditorSubscription$, currentSelection$, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, headingsPlugin, JsxEditorProps, jsxPlugin, linkDialogPlugin, linkPlugin, MDXEditor, toolbarPlugin, useCellValue, useCellValues } from '@mdxeditor/editor'
 import '@mdxeditor/editor/style.css'
 import { $getRoot, $isTextNode, ElementNode, LexicalNode } from 'lexical'
-import React from 'react'
+import React, { FC } from 'react'
 import { mdxEditorMentionsPlugin } from './mentions/mdxEditorMentionsPlugin'
 import { mdxEditorEmojiPickerPlugin } from './emoji/mdxEditorEmojiPickerPlugin'
 
+type TocHeading = { level: number, content: string }
+
+// Make a stateful stream that updates itself when the Lexical editor content changes.
+// We collect only the root level headings
+const currentHeadings$ = Cell<TocHeading[]>([], (r) => {
+  r.pub(createRootEditorSubscription$, (editor) => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        const root = $getRoot()
+        const headings: TocHeading[] = []
+        for (const node of root.getChildren()) {
+          if (node.getType() === 'heading') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const headingNode = node as any
+            headings.push({ level: parseInt(headingNode.getTag().at(1)), content: headingNode.getTextContent() })
+          }
+        }
+        r.pub(currentHeadings$, headings)
+      })
+    })
+  })
+})
+
 const markdownWithColors = `
+<TOCEditor />
+
   # Hello World
+
 
 foo
 bar
 
   A paragraph with <span style="color: red">some red text <span style="color: blue">with some blue nesting.</span> in here.</span> in it.
 
+## Second level heading
 A [google](https://google.com) link.
 
 something more
 
 and :mention[petyo ivanov] here.
 `
+
+const TOCEditor: FC<JsxEditorProps> = () => {
+  const headings = useCellValue(currentHeadings$)
+  return <div>Foo <ul>{headings.map((heading) => <li>{heading.level} {heading.content}</li>)}</ul></div>
+}
 
 const ColorsToolbar = () => {
   const [currentSelection, activeEditor] = useCellValues(currentSelection$, activeEditor$)
@@ -103,6 +135,18 @@ export default function App() {
           }),
           headingsPlugin(),
           diffSourcePlugin(),
+          jsxPlugin({
+            jsxComponentDescriptors: [
+              {
+                name: 'TOCEditor',
+                props: [],
+                Editor: TOCEditor,
+                hasChildren: false,
+                kind: 'flow',
+                source: 'toc'
+              }
+            ]
+          }),
           toolbarPlugin({
             toolbarContents: () => (
               <DiffSourceToggleWrapper>
