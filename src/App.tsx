@@ -1,5 +1,5 @@
 import { $patchStyleText } from '@lexical/selection'
-import { activeEditor$, Cell, createRootEditorSubscription$, currentSelection$, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, headingsPlugin, JsxEditorProps, jsxPlugin, linkDialogPlugin, linkPlugin, MDXEditor, toolbarPlugin, useCellValue, useCellValues } from '@mdxeditor/editor'
+import { activeEditor$, Cell, createRootEditorSubscription$, currentSelection$, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, headingsPlugin, JsxEditorProps, jsxPlugin, linkDialogPlugin, linkPlugin, MDXEditor, realmPlugin, toolbarPlugin, useCellValue, useCellValues } from '@mdxeditor/editor'
 import '@mdxeditor/editor/style.css'
 import { $getRoot, $isTextNode, ElementNode, LexicalNode } from 'lexical'
 import React, { FC } from 'react'
@@ -153,7 +153,8 @@ export default function App() {
                 <ColorsToolbar />
               </DiffSourceToggleWrapper>
             )
-          })
+          }),
+          (realmPlugin({ init: (realm) => realm.register(currentHeadings$) }))()
         ]}
         onChange={(md) => {
           console.log('change', md)
