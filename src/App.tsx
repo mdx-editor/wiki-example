@@ -5,6 +5,8 @@ import { $getRoot, $isTextNode, ElementNode, LexicalNode } from 'lexical'
 import React, { FC } from 'react'
 import { mdxEditorMentionsPlugin } from './mentions/mdxEditorMentionsPlugin'
 import { mdxEditorEmojiPickerPlugin } from './emoji/mdxEditorEmojiPickerPlugin'
+import * as Popover from '@radix-ui/react-popover'
+import './popover-styles.css'
 
 type TocHeading = { level: number, content: string }
 
@@ -78,28 +80,40 @@ const ColorsToolbar = () => {
   }, [currentSelection, activeEditor])
 
   return (
-    <>
-      {['blue', 'red', 'green', 'orange', null].map((color) => {
-        return (
-          <button
-            key={color}
-            style={{
-              border: currentColor === color ? '2px solid black' : '2px solid gray',
-              width: '20px',
-              height: '20px',
-              backgroundColor: color ?? 'transparent'
-            }}
-            onClick={() => {
-              if (activeEditor !== null && currentSelection !== null) {
-                activeEditor.update(() => {
-                  $patchStyleText(currentSelection, { color })
-                })
-              }
-            }}
-          ></button>
-        )
-      })}
-    </>
+    <Popover.Root>
+      <Popover.Trigger asChild>
+        <button className="IconButton" aria-label="Update dimensions">
+          Color
+        </button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content className="PopoverContent" sideOffset={5}>
+          <>
+            {['blue', 'red', 'green', 'orange', null].map((color) => {
+              return (
+                <button
+                  key={color}
+                  style={{
+                    border: currentColor === color ? '2px solid black' : '2px solid gray',
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: color ?? 'transparent'
+                  }}
+                  onClick={() => {
+                    if (activeEditor !== null && currentSelection !== null) {
+                      activeEditor.update(() => {
+                        $patchStyleText(currentSelection, { color })
+                      })
+                    }
+                  }}
+                ></button>
+              )
+            })}
+          </>
+          <Popover.Arrow className="PopoverArrow" />
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }
 
