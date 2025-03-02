@@ -1,4 +1,4 @@
-import { addComposerChild$, addExportVisitor$, addImportVisitor$, addLexicalNode$, LexicalExportVisitor, MdastImportVisitor, realmPlugin } from "@mdxeditor/editor";
+import { addComposerChild$, addExportVisitor$, addImportVisitor$, addLexicalNode$, Cell, LexicalExportVisitor, MdastImportVisitor, realmPlugin } from "@mdxeditor/editor";
 import { TextDirective } from "mdast-util-directive";
 import { $createMentionNode, $isMentionNode, MentionNode } from "./MentionNode";
 import { ElementNode } from "lexical";
@@ -33,13 +33,16 @@ export const LexicalMentionsVisitor: LexicalExportVisitor<MentionNode, TextDirec
   priority: 100
 }
 
-export const mdxEditorMentionsPlugin = realmPlugin({
-  init: (realm) => {
+export const userSearchCallback$ = Cell<(query: string) => Promise<string[]>>(() => Promise.resolve([]))
+
+export const mdxEditorMentionsPlugin = realmPlugin<{ searchCallback: (query: string) => Promise<string[]> }>({
+  init: (realm, params) => {
     realm.pubIn({
+      [userSearchCallback$]: params?.searchCallback ?? [],
       [addLexicalNode$]: MentionNode,
       [addImportVisitor$]: MdastMentionsVisitor,
       [addExportVisitor$]: LexicalMentionsVisitor,
       [addComposerChild$]: NewMentionsPlugin
     })
-  }
+  },
 })

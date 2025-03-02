@@ -7,6 +7,7 @@ import { mdxEditorMentionsPlugin } from './mentions/mdxEditorMentionsPlugin'
 import { mdxEditorEmojiPickerPlugin } from './emoji/mdxEditorEmojiPickerPlugin'
 import * as Popover from '@radix-ui/react-popover'
 import './popover-styles.css'
+import { dummyMentionsData } from './usersToMention'
 
 type TocHeading = { level: number, content: string }
 
@@ -135,7 +136,12 @@ export default function App() {
         markdown={markdownWithColors}
         plugins={[
           linkPlugin(),
-          mdxEditorMentionsPlugin(),
+          mdxEditorMentionsPlugin({
+            searchCallback: async (search) => {
+              await new Promise((resolve) => setTimeout(resolve, 500))
+              return dummyMentionsData.filter((mention) => mention.toLowerCase().includes(search.toLowerCase()))
+            }
+          }),
           mdxEditorEmojiPickerPlugin(),
           directivesPlugin(),
           linkDialogPlugin({
@@ -163,7 +169,7 @@ export default function App() {
           }),
           toolbarPlugin({
             toolbarContents: () => (
-              <DiffSourceToggleWrapper>
+              <DiffSourceToggleWrapper SourceToolbar={<div>Source toolbar</div>}>
                 <ColorsToolbar />
               </DiffSourceToggleWrapper>
             )
