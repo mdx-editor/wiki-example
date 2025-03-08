@@ -9,7 +9,7 @@
 import type { JSX } from 'react';
 import './style.css';
 
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext.js';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
